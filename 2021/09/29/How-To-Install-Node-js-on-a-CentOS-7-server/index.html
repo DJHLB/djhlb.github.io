@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>
+        JHL
+    </title>
+    
+<link rel="stylesheet" href="/libs/highlight/styles/monokai-sublime.css">
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body id="bodyx">
+    <div class="hd posts">
+    <a href="/index.html"><i class="fa fa-reply replay-btn" aria-hidden="true"></i></a>
+    <div class="post-title">
+        <p>
+            How To Install Node.js on a CentOS 7 server
+        </p>
+        <hr>
+    </div>
+    <div class="post-content">
+        <h3 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h3><p>Node.js is a Javascript platform for server-side programming. It allows users to easily create networked applications that require backend functionality. By using Javascript as both the client and server language, development can be fast and consistent.</p>
+<p>In this guide, we will show you a few different ways of getting Node.js installed on a CentOS 7 server so that you can get started. Most users will want to use the <a target="_blank" rel="noopener" href="https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-a-centos-7-server#InstallNodefromtheEPELRepository">EPEL installation instructions</a> or the <a target="_blank" rel="noopener" href="https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-a-centos-7-server#InstallNodeUsingtheNodeVersionManager">NVM installation steps</a>.</p>
+<h2 id="Install-Node-from-Source"><a href="#Install-Node-from-Source" class="headerlink" title="Install Node from Source"></a>Install Node from Source</h2><p>One way of acquiring Node.js is to obtain the source code and compile it yourself.</p>
+<p>To do so, you should grab the source code from the project’s website. On the <a target="_blank" rel="noopener" href="http://nodejs.org/download/">downloads page</a>, right click on the “Source Code” link and click “Copy link address” or whatever similar option your browser gives you.</p>
+<p>On your server, use <code>wget</code> and paste the link that you copied in order to download the archive file:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://nodejs.org/dist/v0.10.30/node-v0.10.30.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>Extract the archive and move into the new directory by typing:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar xzvf node-v* &amp;&amp; cd node-v*</span><br></pre></td></tr></table></figure>
+
+<p>There are a few packages that we need to download from the CentOS repositories in order to compile the code. Use <code>yum</code> to get these now:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install gcc gcc-c++</span><br></pre></td></tr></table></figure>
+
+<p>Now, we can configure and compile the software:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./configure</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>The compilation will take quite awhile. When it is finished, you can install the software onto your system by typing:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+
+<p>To check that the installation was successful, you can ask Node to display its version number:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node --version</span><br><span class="line">v0.10.30</span><br></pre></td></tr></table></figure>
+
+<p>If you see the version number, then the installation was completed successfully.</p>
+<h2 id="Install-a-Package-from-the-Node-Site"><a href="#Install-a-Package-from-the-Node-Site" class="headerlink" title="Install a Package from the Node Site"></a>Install a Package from the Node Site</h2><p>Another option for installing Node.js on your server is to simply get the pre-built packages from the Node.js website and install them.</p>
+<p>You can find the Linux binary packages <a target="_blank" rel="noopener" href="http://nodejs.org/download/">here</a>. Since CentOS 7 only comes in the 64-bit architecture, right click on the link under “Linux Binaries (.tar.gz)” labeled “64-bit”. Select “Copy link address” or whatever similar option your browser provides.</p>
+<p>On your server, change to your home directory and use the <code>wget</code> utility to download the files. Paste the URL you just copied as the argument for the command:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd ~</span><br><span class="line">wget http://nodejs.org/dist/v0.10.30/node-v0.10.30-linux-x64.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p><strong>Note</strong>: Your version number in the URL is likely to be different than the one above. Use the address you copied from the Node.js site rather than the specific URL provided in this guide.</p>
+<p>Next, we will extract the binary package into our system’s local package hierarchy with the <code>tar</code> command. The archive is packaged within a versioned directory, which we can get rid of by passing the <code>--strip-components 1</code> option. We will specify the target directory of our command with the <code>-C</code> command:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo tar --strip-components 1 -xzvf node-v* -C /usr/local</span><br></pre></td></tr></table></figure>
+
+<p>This will install all of the components within the <code>/usr/local</code> branch of your system.</p>
+<p>You can verify that the installation was successful by asking Node for its version number:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node --version</span><br><span class="line">v0.10.30</span><br></pre></td></tr></table></figure>
+
+<p>The installation was successful and you can now begin using Node.js on your CentOS 7 server.</p>
+<h2 id="Install-Node-from-the-EPEL-Repository"><a href="#Install-Node-from-the-EPEL-Repository" class="headerlink" title="Install Node from the EPEL Repository"></a>Install Node from the EPEL Repository</h2><p>An alternative installation method uses the <strong>EPEL</strong> (Extra Packages for Enterprise Linux) repository that is available for CentOS and related distributions.</p>
+<p>To gain access to the EPEL repo, you must modify the repo-list of your installation. Fortunately, we can reconfigure access to this repository by installing a package available in our current repos called <code>epel-release</code>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install epel-release</span><br></pre></td></tr></table></figure>
+
+<p>Now that you have access to the EPEL repository, you can install Node.js using your regular <code>yum</code> commands:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install nodejs</span><br></pre></td></tr></table></figure>
+
+<p>Once again, you can check that the installation was successful by asking Node to return its version number:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node --version</span><br><span class="line">v0.10.30</span><br></pre></td></tr></table></figure>
+
+<p>Many people will also want access to <code>npm</code> to manage their Node packages. You can also get this from EPEL by typing:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install npm</span><br></pre></td></tr></table></figure>
+
+<h2 id="Install-Node-Using-the-Node-Version-Manager"><a href="#Install-Node-Using-the-Node-Version-Manager" class="headerlink" title="Install Node Using the Node Version Manager"></a>Install Node Using the Node Version Manager</h2><p>Another way of installing Node.js that is particularly flexible is through NVM, the Node version manager. This piece of software allows you to install and maintain many different independent versions of Node.js, and their associated Node packages, at the same time.</p>
+<p>To install NVM on your CentOS 7 machine, visit <a target="_blank" rel="noopener" href="https://github.com/creationix/nvm">the project’s GitHub page</a>. Copy the <code>curl</code> or <code>wget</code> command from the README file that displays on the main page. This will point you towards the most recent version of the installation script.</p>
+<p>Before piping the command through to <code>bash</code>, it is always a good idea to audit the script to make sure it isn’t doing anything you don’t agree with. You can do that by removing the <code>| bash</code> segment at the end of the <code>curl</code> command:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://raw.githubusercontent.com/creationix/nvm/v0.13.1/install.sh</span><br></pre></td></tr></table></figure>
+
+<p>Take a look and make sure you are comfortable with the changes it is making. When you are satisfied, run the command again with <code>| bash</code> appended at the end. The URL you use will change depending on the latest version of NVM, but as of right now, the script can be downloaded and executed by typing:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://raw.githubusercontent.com/creationix/nvm/v0.13.1/install.sh | bash</span><br></pre></td></tr></table></figure>
+
+<p>This will install the <code>nvm</code> script to your user account. To use it, you must first source your <code>.bash_profile</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.bash_profile</span><br></pre></td></tr></table></figure>
+
+<p>Now, you can ask NVM which versions of Node it knows about:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">nvm list-remote</span><br><span class="line">. . .</span><br><span class="line">v0.10.29</span><br><span class="line">v0.10.30</span><br><span class="line"> v0.11.0</span><br><span class="line"> v0.11.1</span><br><span class="line"> v0.11.2</span><br><span class="line"> v0.11.3</span><br><span class="line"> v0.11.4</span><br><span class="line"> v0.11.5</span><br><span class="line"> v0.11.6</span><br><span class="line"> v0.11.7</span><br><span class="line"> v0.11.8</span><br><span class="line"> v0.11.9</span><br><span class="line">v0.11.10</span><br><span class="line">v0.11.11</span><br><span class="line">v0.11.12</span><br><span class="line">v0.11.13</span><br></pre></td></tr></table></figure>
+
+<p>You can install a version of Node by typing any of the releases you see. For instance, to get version 0.10.30, you can type:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvm install v0.10.30</span><br></pre></td></tr></table></figure>
+
+<p>You can see the different versions you have installed by typing:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nvm list</span><br><span class="line">-&gt;  v0.10.30</span><br><span class="line">      system</span><br></pre></td></tr></table></figure>
+
+<p>You can switch between them by typing:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nvm use v0.10.30</span><br><span class="line">Now using node v0.10.30</span><br></pre></td></tr></table></figure>
+
+<p>To set this version as the default, type:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nvm alias default v0.10.30</span><br><span class="line">default -&gt; v0.10.30</span><br></pre></td></tr></table></figure>
+
+<p>You can verify that the install was successful using the same technique from the other sections, by typing:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node --version</span><br><span class="line">v0.10.30</span><br></pre></td></tr></table></figure>
+
+<p>From the version number output, we can tell that Node is installed on our machine as we expected.</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>As you can see, there are quite a few different ways of getting Node.js up and running on your CentOS 7 server. If one of the installation methods is giving you problems, try one of the other options.</p>
+
+    </div>
+
+    
+</div>
+    <div class="footer" id="footer">
+    <p>Copyright © 2020 <a class="flink" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>-<a class="flink" target="_blank" rel="noopener" href="https://github.com/sanjinhub/hexo-theme-geek">Geek</a>.
+        <label class="el-switch el-switch-green el-switch-sm" style="vertical-align: sub;">
+            <input type="checkbox" name="switch" id="update_style">
+            <span class="el-switch-style"></span>
+        </label>
+<!--         <script type="text/javascript">
+        var cnzz_protocol = (("https:" == document.location.protocol) ? "https://" : "http://");
+        document.write(unescape("%3Cspan id='cnzz_stat_icon_1278548644'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "v1.cnzz.com/stat.php%3Fid%3D1278548644%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));
+        </script> -->
+    </p>
+</div>
+<input type="hidden" id="web_style" value="black">
+<input type="hidden" id="valine_appid" value="CmCti21ooOOIzFOhEyFkFvR0-gzGzoHsz">
+<input type="hidden" id="valine_appKey" value="FqiyUqbg7McKN2eG0MCewupf">
+
+<script src="/libs/jquery.min.js"></script>
+
+
+<script src="/libs/highlight/highlight.pack.js"></script>
+
+<script src='//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js'></script>
+
+<script src="/js/js.js"></script>
+
+<style type="text/css">
+.v * {
+    color: #698fca;
+}
+
+.v .vlist .vcard .vhead .vsys {
+    color: #3a3e4a;
+}
+
+.v .vlist .vcard .vh .vmeta .vat {
+    color: #638fd5;
+}
+
+.v .vlist .vcard .vhead .vnick {
+    color: #6ba1ff;
+}
+
+.v a {
+    color: #8696b1;
+}
+
+.v .vlist .vcard .vhead .vnick:hover {
+    color: #669bfc;
+}
+</style>
+</body>
+
+</html>
