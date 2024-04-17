@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="什么是TomcatTomcat是由Apache软件基金会下属的Jakarta项目开发的一个Servlet容器，按照Sun Microsystems提供的技术规范，实现了对Servlet和JavaServer Page（JSP）的支持，并提供了作为Web服务器的一些特有功能，如Tomcat管理和控制平台、安全域管理和Tomcat阀等。由于Tomcat本身也内含了一个HTTP服务器，它也可以被视作一个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CentOS7安装配置Tomcat9">
+<meta property="og:url" content="https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/index.html">
+<meta property="og:site_name" content="JHL">
+<meta property="og:description" content="什么是TomcatTomcat是由Apache软件基金会下属的Jakarta项目开发的一个Servlet容器，按照Sun Microsystems提供的技术规范，实现了对Servlet和JavaServer Page（JSP）的支持，并提供了作为Web服务器的一些特有功能，如Tomcat管理和控制平台、安全域管理和Tomcat阀等。由于Tomcat本身也内含了一个HTTP服务器，它也可以被视作一个">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-07-01T03:19:43.000Z">
+<meta property="article:modified_time" content="2024-03-11T08:43:31.144Z">
+<meta property="article:author" content="DJHLB">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>CentOS7安装配置Tomcat9</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">项目</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2021/07/05/How-to-Install-Latest-MySQL5-7-on-CentOS7/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2021/06/25/found/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&text=CentOS7安装配置Tomcat9"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&title=CentOS7安装配置Tomcat9"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&is_video=false&description=CentOS7安装配置Tomcat9"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CentOS7安装配置Tomcat9&body=Check out this article: https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&title=CentOS7安装配置Tomcat9"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&title=CentOS7安装配置Tomcat9"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&title=CentOS7安装配置Tomcat9"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&title=CentOS7安装配置Tomcat9"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&name=CentOS7安装配置Tomcat9&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&t=CentOS7安装配置Tomcat9"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFTomcat"><span class="toc-number">1.</span> <span class="toc-text">什么是Tomcat</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Tomcat%E5%90%8C%E7%B1%BB%E4%BA%A7%E5%93%81"><span class="toc-number">2.</span> <span class="toc-text">Tomcat同类产品</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85Tomcat"><span class="toc-number">3.</span> <span class="toc-text">使用yum安装Tomcat</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%8C%85%E5%AE%89%E8%A3%85Tomcat"><span class="toc-number">4.</span> <span class="toc-text">使用二进制包安装Tomcat</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        CentOS7安装配置Tomcat9
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">DJHLB</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2021-07-01T03:19:43.000Z" class="dt-published" itemprop="datePublished">2021-07-01</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="什么是Tomcat"><a href="#什么是Tomcat" class="headerlink" title="什么是Tomcat"></a>什么是Tomcat</h4><p>Tomcat是由Apache软件基金会下属的Jakarta项目开发的一个Servlet容器，按照Sun Microsystems提供的技术规范，实现了对Servlet和JavaServer Page（JSP）的支持，并提供了作为Web服务器的一些特有功能，如Tomcat管理和控制平台、安全域管理和Tomcat阀等。由于Tomcat本身也内含了一个HTTP服务器，它也可以被视作一个单独的Web服务器。但是，不能将Tomcat和Apache HTTP服务器混淆，Apache HTTP服务器是一个用C语言实现的HTTPWeb服务器；这两个HTTP web server不是捆绑在一起的。Apache Tomcat包含了一个配置管理工具，也可以通过编辑XML格式的配置文件来进行配置。</p>
+<h4 id="Tomcat同类产品"><a href="#Tomcat同类产品" class="headerlink" title="Tomcat同类产品"></a>Tomcat同类产品</h4><ul>
+<li>Resin服务器</li>
+</ul>
+<blockquote>
+<p>Resin是Caucho公司的产品，是一个非常流行的支持Servlet和JSP的服务器，速度非常快。Resin本身包含了一个支持HTML的Web服务器，这使它不仅可以显示动态内容，而且显示静态内容的能力也毫不逊色，因此许多网站都是使用Resin服务器构建。</p>
+</blockquote>
+<ul>
+<li>Jetty服务器</li>
+</ul>
+<blockquote>
+<p>Jetty是一个纯粹的基于Java的网页服务器和Java Servlet容器。尽管网页服务器通常用来为人们呈现文档，但是Jetty通常在较大的软件框架中用于计算机与计算机之间的通信。Jetty作为Eclipse基金会的一部分，是一个自由和开源项目。</p>
+</blockquote>
+<ul>
+<li>JBoss服务器</li>
+</ul>
+<blockquote>
+<p>JBoss是一个种遵从JavaEE规范的、开放源代码的、纯Java的EJB服务器，对于J2EE有很好的支持。JBoss采用JML API实现软件模块的集成与管理，其核心服务又是提供EJB服务器，不包含Servlet和JSP的Web容器，不过它可以和Tomcat完美结合。</p>
+</blockquote>
+<ul>
+<li>WebShpere服务器</li>
+</ul>
+<blockquote>
+<p>WebSphere是IBM公司的产品，可进一步细分为 WebSphere Performance Pack、Cache Manager 和WebSphere Application Server等系列，其中WebSphere Application Server 是基于Java 的应用环境，可以运行于 Sun Solaris、Windows NT 等多种操作系统平台，用于建立、部署和管理Internet和Intranet Web应用程序。</p>
+</blockquote>
+<ul>
+<li>WebLogic服务器</li>
+</ul>
+<blockquote>
+<p>WebLogic 是BEA公司的产品，可进一步细分为 WebLogic Server、WebLogic Enterprise 和 WebLogic Portal 等系列，其中 WebLogic Server 的功能特别强大。WebLogic 支持企业级的、多层次的和完全分布式的Web应用，并且服务器的配置简单、界面友好。对于那些正在寻求能够提供Java平台所拥有的一切应用服务器的用户来说，WebLogic是一个十分理想的选择。</p>
+</blockquote>
+<h4 id="使用yum安装Tomcat"><a href="#使用yum安装Tomcat" class="headerlink" title="使用yum安装Tomcat"></a>使用yum安装Tomcat</h4><p>搜索有关Tomcat的软件包。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># yum list |grep tomcat</span></span><br><span class="line">jglobus-ssl-proxies-tomcat.noarch       2.1.0-6.el7                    epel     </span><br><span class="line">tomcat.noarch                           7.0.76-3.el7_4                 updates  </span><br><span class="line">tomcat-admin-webapps.noarch             7.0.76-3.el7_4                 updates  </span><br><span class="line">tomcat-docs-webapp.noarch               7.0.76-3.el7_4                 updates  </span><br><span class="line">tomcat-el-2.2-api.noarch                7.0.76-3.el7_4                 updates  </span><br><span class="line">tomcat-javadoc.noarch                   7.0.76-3.el7_4                 updates  </span><br><span class="line">tomcat-jsp-2.2-api.noarch               7.0.76-3.el7_4                 updates  </span><br><span class="line">tomcat-jsvc.noarch                      7.0.76-3.el7_4                 updates  </span><br><span class="line">tomcat-lib.noarch                       7.0.76-3.el7_4                 updates  </span><br><span class="line">tomcat-native.x86_64                    1.2.16-1.el7                   epel     </span><br><span class="line">tomcat-servlet-3.0-api.noarch           7.0.76-3.el7_4                 updates  </span><br><span class="line">tomcat-webapps.noarch                   7.0.76-3.el7_4                 updates  </span><br><span class="line">tomcatjss.noarch                        7.2.1-6.el7                    base     </span><br></pre></td></tr></table></figure>
+
+<p>在CentOS7中默认提供Tomcat7版本,安装时只需安装tomcat,tomcat-admin-webapps,tomcat-doc-webapp,tomcat-webapps即可,其它包会自动安装上。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># yum install -y tomcat tomcat-admin-webapps tomcat-docs-webapp tomcat-webapps</span></span><br><span class="line">Installed:</span><br><span class="line">  tomcat.noarch 0:7.0.76-3.el7_4                                   </span><br><span class="line">  tomcat-admin-webapps.noarch 0:7.0.76-3.el7_4                     </span><br><span class="line">  tomcat-docs-webapp.noarch 0:7.0.76-3.el7_4                       </span><br><span class="line">  tomcat-webapps.noarch 0:7.0.76-3.el7_4                           </span><br><span class="line"> </span><br><span class="line">Dependency Installed:</span><br><span class="line">  apache-commons-logging.noarch 0:1.1.2-7.el7                      </span><br><span class="line">  avalon-framework.noarch 0:4.3-10.el7                             </span><br><span class="line">  avalon-logkit.noarch 0:2.1-14.el7                                </span><br><span class="line">  jakarta-taglibs-standard.noarch 0:1.1.2-14.el7_1                 </span><br><span class="line">  tomcat-el-2.2-api.noarch 0:7.0.76-3.el7_4                        </span><br><span class="line">  tomcat-jsp-2.2-api.noarch 0:7.0.76-3.el7_4                       </span><br><span class="line">  tomcat-lib.noarch 0:7.0.76-3.el7_4                               </span><br><span class="line">  tomcat-servlet-3.0-api.noarch 0:7.0.76-3.el7_4                   </span><br><span class="line"> </span><br><span class="line">Complete!</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用二进制包安装Tomcat"><a href="#使用二进制包安装Tomcat" class="headerlink" title="使用二进制包安装Tomcat"></a>使用二进制包安装Tomcat</h4><ul>
+<li><p>下载Tomcat,文章使用9.0版本</p>
+<p><a target="_blank" rel="noopener" href="https://tomcat.apache.org/download-90.cgi">官网地址</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -O http://mirrors.shu.edu.cn/apache/tomcat/tomcat-9/v9.0.6/bin/apache-tomcat-9.0.6.tar.gz</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>解压源码包放在&#x2F;usr&#x2F;local目录下</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># tar xvf apache-tomcat-9.0.6.tar.gz -C /usr/local/</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>创建链接文件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -sv /usr/local/apache-tomcat-9.0.6 /usr/local/tomcat</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>安装JDK</p>
+<p>Tomcat9需要JDK8及以上版本</p>
+<p><a target="_blank" rel="noopener" href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">JDK下载地址</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># wget --no-check-certificate --no-cookies --header &quot;Cookie: oraclelicense=accept-securebackup-cookie&quot; http://download.oracle.com/otn-pub/java/jdk/8u162-b12/0da788060d494f5095bf8624735fa2f1/jdk-8u162-linux-x64.tar.gz</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置CentOS7使用JDK1.8版本</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># mkdir -p /usr/local/jdk-oracal</span></span><br><span class="line"><span class="comment"># tar xvf jdk-8u162-linux-x64.tar.gz -C /usr/local/jdk-oracal/</span></span><br><span class="line"><span class="comment"># cd /etc/profile.d/</span></span><br><span class="line"><span class="comment"># vi java1.8.sh</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/local/jdk-oracal/jdk1.8.0_162</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line"><span class="comment"># source java1.8.sh</span></span><br><span class="line"><span class="comment"># java -version</span></span><br><span class="line">java version <span class="string">&quot;1.8.0_162&quot;</span></span><br><span class="line">Java(TM) SE Runtime Environment (build 1.8.0_162-b12)</span><br><span class="line">Java HotSpot(TM) 64-Bit Server VM (build 25.162-b12, mixed mode)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>配置Tomcat9启动环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># vi /etc/profile.d/tomcat9.sh</span></span><br><span class="line"><span class="built_in">export</span> CATALINA_HOME=/usr/local/tomcat9</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$TOMCAT_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line"><span class="comment"># source /etc/profile.d/tomcat9.sh</span></span><br></pre></td></tr></table></figure>
+
+<p>官方建议在Tomcat安装目录的bin目录下建一个setenv.sh,将JAVA_HOME,JRE_HOME等环境变量信息指定。示例如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cat bin/setenv.sh </span></span><br><span class="line">CATALINA_HOME=/usr/local/tomcat9</span><br><span class="line">CATALINA_BASE=/usr/local/tomcat9</span><br><span class="line">JAVA_HOME=/usr/local/jdk-oracal/jdk1.8.0_162</span><br><span class="line">JRE_HOME=/usr/local/jdk-oracal/jdk1.8.0_162/jre/</span><br><span class="line">CATALINA_PID=/usr/local/tomcat9/tomcat9.pid</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动Tomcat9</p>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># catalina.sh start</span></span><br><span class="line">Using CATALINA_BASE:   /usr/local/tomcat9</span><br><span class="line">Using CATALINA_HOME:   /usr/local/tomcat9</span><br><span class="line">Using CATALINA_TMPDIR: /usr/local/tomcat9/temp</span><br><span class="line">Using JRE_HOME:        /usr/local/jdk-oracal/jdk1.8.0_162</span><br><span class="line">Using CLASSPATH:       /usr/local/tomcat9/bin/bootstrap.jar:/usr/local/tomcat9/bin/tomcat-juli.jar</span><br><span class="line">Tomcat started.</span><br><span class="line"><span class="comment"># ss -tnpl |grep 8080</span></span><br><span class="line">LISTEN     0      100         :::8080                    :::*                   <span class="built_in">users</span>:((&quot;java&quot;,pid=<span class="number">4177</span>,fd=<span class="number">49</span>))</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用systemd管理Tomcat9服务</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cat /usr/lib/systemd/system/tomcat9.service </span></span><br><span class="line">[Unit]</span><br><span class="line">Description=Apache Tomcat 9</span><br><span class="line">After=syslog.target network.target remote-fs.target nss-lookup.target</span><br><span class="line"> </span><br><span class="line">[Service]</span><br><span class="line">Type=forking</span><br><span class="line">PIDFile=/usr/local/tomcat9/tomcat9.pid</span><br><span class="line">ExecStart=/usr/local/tomcat9/bin/catalina.sh start -DEFOREGRAND</span><br><span class="line">ExecReload=/bin/kill -s HUP <span class="variable">$MAINPID</span></span><br><span class="line">ExecStop=/bin/kill -s QUIT <span class="variable">$MAINPID</span></span><br><span class="line">RemainAfterExit=<span class="built_in">yes</span></span><br><span class="line"> </span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>配置访问Tomcat9管理界面</p>
+<p>修改conf&#x2F;tomat-users.xml，添加以下内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--  </span><br><span class="line">  &lt;role rolename=<span class="string">&quot;tomcat&quot;</span>/&gt;</span><br><span class="line">  &lt;role rolename=<span class="string">&quot;role1&quot;</span>/&gt;</span><br><span class="line">  &lt;user username=<span class="string">&quot;tomcat&quot;</span> password=<span class="string">&quot;tomcat&quot;</span> roles=<span class="string">&quot;tomcat&quot;</span>/&gt;</span><br><span class="line">  &lt;user username=<span class="string">&quot;both&quot;</span> password=<span class="string">&quot;tomcat&quot;</span> roles=<span class="string">&quot;tomcat,role1&quot;</span>/&gt;</span><br><span class="line">  &lt;user username=<span class="string">&quot;role1&quot;</span> password=<span class="string">&quot;tomcat&quot;</span> roles=<span class="string">&quot;role1&quot;</span>/&gt;</span><br><span class="line">--&gt;</span><br><span class="line">  &lt;role rolename=<span class="string">&quot;manager-gui&quot;</span>/&gt;</span><br><span class="line">  &lt;role rolename=<span class="string">&quot;manager-script&quot;</span> /&gt;</span><br><span class="line">  &lt;user username=<span class="string">&quot;admin&quot;</span> password=<span class="string">&quot;tomcat&quot;</span> roles=<span class="string">&quot;manager-gui,manager-script&quot;</span> /&gt;</span><br><span class="line">&lt;/tomcat-users&gt;</span><br></pre></td></tr></table></figure>
+
+<p>修改webapps&#x2F;manager&#x2F;META-INF目录下的content.xml，在allow行的末尾加上|\d+.\d+.\d+.\d+.表示允许所有主机访问。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;Context antiResourceLocking=<span class="string">&quot;false&quot;</span> privileged=<span class="string">&quot;true&quot;</span> &gt;</span><br><span class="line">  &lt;Valve className=<span class="string">&quot;org.apache.catalina.valves.RemoteAddrValve&quot;</span></span><br><span class="line">         allow=<span class="string">&quot;127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1|\d+\.\d+\.\d+\.\d+&quot;</span> /&gt;</span><br><span class="line">  &lt;Manager sessionAttributeValueClassNameFilter=<span class="string">&quot;java\.lang\.(?:Boolean|Integer|Long|Number|String)|org\.apache\.catalina\.filters\.CsrfPreventionFilter\$LruCache(?:\$1)?|java\.util\.(?:Linked)?HashMap&quot;</span>/&gt;</span><br><span class="line">&lt;/Context&gt;</span><br></pre></td></tr></table></figure>
+
+<p>重启Tomcat9生效</p>
+</li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/probberechts">项目</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFTomcat"><span class="toc-number">1.</span> <span class="toc-text">什么是Tomcat</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Tomcat%E5%90%8C%E7%B1%BB%E4%BA%A7%E5%93%81"><span class="toc-number">2.</span> <span class="toc-text">Tomcat同类产品</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85Tomcat"><span class="toc-number">3.</span> <span class="toc-text">使用yum安装Tomcat</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%8C%85%E5%AE%89%E8%A3%85Tomcat"><span class="toc-number">4.</span> <span class="toc-text">使用二进制包安装Tomcat</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&text=CentOS7安装配置Tomcat9"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&title=CentOS7安装配置Tomcat9"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&is_video=false&description=CentOS7安装配置Tomcat9"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CentOS7安装配置Tomcat9&body=Check out this article: https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&title=CentOS7安装配置Tomcat9"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&title=CentOS7安装配置Tomcat9"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&title=CentOS7安装配置Tomcat9"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&title=CentOS7安装配置Tomcat9"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&name=CentOS7安装配置Tomcat9&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://djhl.github.io/2021/07/01/CentOS7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AETomcat9/&t=CentOS7安装配置Tomcat9"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    DJHLB
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
