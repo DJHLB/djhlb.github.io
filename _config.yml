@@ -97,7 +97,9 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: geek
+theme: cactus
+theme_config:
+  colorscheme: dark
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
