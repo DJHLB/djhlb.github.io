@@ -393,9 +393,226 @@ umount -R /mnt
 reboot
 ```
 
+##### 5 其他设置
 
+###### 5.1 字体
 
+fonts.conf:
 
+```
+  <!-- Default font for the zh_CN locale (no fc-match pattern) -->
+  <match>
+    <test compare="contains" name="lang">
+      <string>zh_CN</string>
+    </test>
+    <edit mode="prepend" name="family">
+      <!-- 更改下一行即可, 以下同理 -->
+      <string>PingFang SC</string>
+    </edit>
+  </match>
+
+  <!-- 默认无衬线字体 -->
+  <!-- Default sans-serif font -->
+  <match target="pattern">
+    <test qual="any" name="family">
+      <string>sans-serif</string></test>
+    <edit name="family" mode="prepend" binding="same">
+      <string>Inter</string>
+    </edit>
+  </match>
+
+  <!-- 默认衬线字体 -->
+  <!-- Default serif fonts -->
+  <match target="pattern">
+    <test qual="any" name="family">
+      <string>serif</string>
+    </test>
+    <edit name="family" mode="prepend" binding="same">
+      <string>STSong</string>
+    </edit>
+  </match>
+
+  <!-- 默认等宽字体 -->
+  <!-- Default monospace fonts -->
+  <match target="pattern">
+    <test qual="any" name="family">
+      <string>monospace</string>
+    </test>
+    <edit name="family" mode="prepend" binding="same">
+      <string>MesloLGS Nerd Font Mono</string>
+    </edit>
+  </match>
+
+<!-- Fallback fonts preference order -->
+  <alias>
+    <family>sans-serif</family>
+    <prefer>
+      <family>Inter</family>
+      <family>PingFang SC</family>
+      <family>PingFang TC</family>
+      <family>Microsoft YaHei UI</family>
+      <family>Microsoft YaHei</family>
+      <family>Noto Sans CJK SC</family>
+      <family>Noto Sans CJK TC</family>
+      <family>Noto Sans CJK JP</family>
+      <family>Noto Sans CJK KR</family>
+      <family>Noto Color Emoji</family>
+      <family>Noto Emoji</family>
+    </prefer>
+  </alias>
+  <alias>
+    <family>serif</family>
+    <prefer>
+      <family>STSong</family>
+      <family>SimSun</family>
+      <family>Noto Serif</family>
+      <family>Noto Serif CJK SC</family>
+      <family>Noto Serif CJK TC</family>
+      <family>Noto Serif CJK JP</family>
+      <family>Noto Serif CJK KR</family>
+      <family>Noto Color Emoji</family>
+      <family>Noto Emoji</family>
+    </prefer>
+  </alias>
+  <alias>
+    <family>monospace</family>
+    <prefer>
+      <family>MesloLGS Nerd Font Mono</family>
+      <family>Microsoft YaHei UI</family>
+      <family>Microsoft YaHei</family>
+      <family>Noto Color Emoji</family>
+      <family>Noto Emoji</family>
+    </prefer>
+  </alias>
+```
+
+###### 5.2 snapshots 和 system rollbacks
+
+首先安装snapper:
+
+```bash
+sudo pacman -S snapper snap-pac
+```
+
+在前面安装时已经创建了`@snapshots`子卷，先卸载并删除其挂载点：
+
+```bash
+sudo umount /.snapshots
+sudo rm -rf /.snapshots
+```
+
+然后让snapper生成默认的配置：
+
+```bash
+sudo snapper -c root create-config /
+```
+
+删除由snapper创建的挂载点，自己重新创建一个并挂载它：
+
+```bash
+sudo btrfs subvolume delete .snapshots
+sudo mkdir /.snapshots
+sudo mount -a
+```
+
+这样设置就把 Snapper 创建的所有快照存储在 @ 子卷之外了。然后可以替换 @ 而不会丢失快照。
+
+设置一下权限（注意用户须有root权限来使用快照）：
+
+```bash
+sudo chmod 750 /.snapshots
+sudo chown :wheel /.snapshots
+```
+
+接下来设置定时快照，编辑snapper配置文件`/etc/snapper/configs/root`：
+
+```bash
+[......]
+ALLOW_USERS="foo"	#允许用户foo管理快照
+[......]
+TIMELINE_MIN_AGE="1800"
+TIMELINE_LIMIT_HOURLY="5"
+TIMELINE_LIMIT_DAILY="7"
+TIMELINE_LIMIT_WEEKLY="0"
+TIMELINE_LIMIT_MONTHLY="0"
+TIMELINE_LIMIT_YEARLY="0"
+```
+
+设置snapper自启动：
+
+```bash
+sudo systemctl enable --now snapper-timeline.timer
+sudo systemctl enable --now snapper-cleanup.timer
+```
+
+配置Updatedb（系统有locate命令），编辑`/etc/updatedb.conf`添加一行：`PRUNENAMES = ".snapshots"`
+
+为Grub添加快照选项，首先安装`grub-btrfs`包：
+
+```bash
+sudo pacman -S grub-btrfs
+```
+
+在 `/etc/default/grub-btrfs/config` 中设置包含 `grub.cfg` 文件的目录位置：
+
+```bash
+GRUB_BTRFS_GRUB_DIRNAME="/efi/grub"
+```
+
+再设置一下Grub自动更新：
+
+```bash
+sudo systemctl enable --now grub-btrfs.path
+```
+
+接下来设置只读快照，从快照启动系统时将是只读模式。在 `/etc/mkinitcpio.conf` 中 HOOKS 末尾添加 `grub-btrfs-overlayfs`：
+
+```bash
+HOOKS=(base ... fsck grub-btrfs-overlayfs)
+```
+
+重新生成initramfs：
+
+```bash
+sudo mkinitcpio -P
+```
+
+手动回滚：  启动到由overlayfs 提供的快照挂载读写后，挂载顶级子卷(subvolid=5)。  也就是说，省略任何 subvolid 或 subvol 安装标志（例如：标记为 cryptdev 的加密设备映射）：
+
+```bash
+sudo mount /dev/mapper/cryptdev /mnt
+```
+
+移动并标记损坏的@子卷：
+
+```bash
+sudo mv /mnt/@ /mnt/@.broken
+```
+
+或者干脆删除@子卷：
+
+```bash
+sudo btrfs  /mnt/@
+```
+
+找到要恢复的快照的编号：
+
+```bash
+sudo grep -r '<date>' /mnt/@snapshots/*/info.xml
+[...]
+/.snapshots/8/info.xml:  <date>2022-08-20 15:21:53</date>
+/.snapshots/9/info.xml:  <date>2022-08-20 15:22:39</date> 
+```
+
+创建只读快照：
+
+```bash
+sudo btrfs subvolume snapshot /mnt/@snapshots/number/snapshot /mnt/@	#number为要恢复的快照的编号
+```
+
+卸载/mnt。  
+
+重启并回滚！
 
 
 
