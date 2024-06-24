@@ -1,7 +1,7 @@
 ---
 title: 记录一下使用btrfs安装ArchLinux的过程
 date: 2024-05-25 19:26:54
-tags: Arch Linux Btrfs
+tags: #Arch #Linux #Btrfs
 ---
 
 #### 1. 事前准备
