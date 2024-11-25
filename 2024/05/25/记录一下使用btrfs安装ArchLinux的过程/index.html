@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="1. 事前准备下载并验证安装文件：archlinux-RELEASE_VERSION-x86_64.iso 插上合适的安装介质(U盘等)，使用dd命令来制作： 1$ sudo dd if&#x3D;archlinux-RELEASE_VERSION-x86_64.iso of&#x3D;&#x2F;dev&#x2F;sdx bs&#x3D;4M status&#x3D;progress oflag&#x3D;sync  完成之后，就可以从安装介质启动了 2. 开始安">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记录一下使用btrfs安装ArchLinux的过程">
+<meta property="og:url" content="https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/index.html">
+<meta property="og:site_name" content="JHL">
+<meta property="og:description" content="1. 事前准备下载并验证安装文件：archlinux-RELEASE_VERSION-x86_64.iso 插上合适的安装介质(U盘等)，使用dd命令来制作： 1$ sudo dd if&#x3D;archlinux-RELEASE_VERSION-x86_64.iso of&#x3D;&#x2F;dev&#x2F;sdx bs&#x3D;4M status&#x3D;progress oflag&#x3D;sync  完成之后，就可以从安装介质启动了 2. 开始安">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-05-25T11:26:54.000Z">
+<meta property="article:modified_time" content="2024-07-16T06:30:48.333Z">
+<meta property="article:author" content="DJHLB">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>记录一下使用btrfs安装ArchLinux的过程</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/djhlb">项目</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/01/22/shell%E8%8E%B7%E5%8F%96Github%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC%E4%B8%8B%E8%BD%BD%E5%9C%B0%E5%9D%80/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&text=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&title=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&is_video=false&description=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=记录一下使用btrfs安装ArchLinux的过程&body=Check out this article: https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&title=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&title=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&title=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&title=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&name=记录一下使用btrfs安装ArchLinux的过程&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&t=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%BA%8B%E5%89%8D%E5%87%86%E5%A4%87"><span class="toc-number">1.</span> <span class="toc-text">1. 事前准备</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%BC%80%E5%A7%8B%E5%AE%89%E8%A3%85"><span class="toc-number">2.</span> <span class="toc-text">2. 开始安装</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#2-1-reflector"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 reflector</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-2-%E9%94%AE%E7%9B%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%AD%97%E4%BD%93"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 键盘布局和字体</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-3-%E8%BF%9E%E6%8E%A5%E7%BD%91%E7%BB%9C"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 连接网络</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-4-%E6%9B%B4%E6%96%B0%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 更新系统时钟</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-5-%E7%A3%81%E7%9B%98%E5%88%86%E5%8C%BA"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 磁盘分区</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#2-5-1-%E7%A3%81%E7%9B%98%E5%8A%A0%E5%AF%86"><span class="toc-number">2.5.1.</span> <span class="toc-text">2.5.1 磁盘加密</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-5-2-%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8A%A0%E5%AF%86%E5%88%86%E5%8C%BA%EF%BC%9A"><span class="toc-number">2.5.2.</span> <span class="toc-text">2.5.2 初始化加密分区：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-5-3-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%88%86%E5%8C%BA"><span class="toc-number">2.5.3.</span> <span class="toc-text">2.5.3 格式化分区</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-5-4-%E6%8C%82%E8%BD%BD%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%B9%B6%E5%88%9B%E5%BB%BAbtrfs%E5%AD%90%E5%8D%B7"><span class="toc-number">2.5.4.</span> <span class="toc-text">2.5.4 挂载根目录并创建btrfs子卷</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-6-%E6%8C%82%E8%BD%BD%E5%88%86%E5%8C%BA"><span class="toc-number">2.6.</span> <span class="toc-text">2.6 挂载分区</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-7-%E5%AE%89%E8%A3%85%E7%B3%BB%E7%BB%9F"><span class="toc-number">2.7.</span> <span class="toc-text">2.7 安装系统</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-8-Fstab"><span class="toc-number">2.8.</span> <span class="toc-text">2.8 Fstab</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE"><span class="toc-number">2.9.</span> <span class="toc-text">3 基础配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-1-%E6%97%B6%E5%8C%BA"><span class="toc-number">2.10.</span> <span class="toc-text">3.1 时区</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-2-%E4%B8%BB%E6%9C%BA%E5%90%8D"><span class="toc-number">2.11.</span> <span class="toc-text">3.2 主机名</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-3-%E8%AE%BE%E7%BD%AELocale"><span class="toc-number">2.12.</span> <span class="toc-text">3.3 设置Locale</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-4-%E4%B8%BAroot%E7%94%A8%E6%88%B7%E8%AE%BE%E7%BD%AE%E5%AF%86%E7%A0%81"><span class="toc-number">2.13.</span> <span class="toc-text">3.4 为root用户设置密码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-5-%E5%AE%89%E8%A3%85%E5%BE%AE%E7%A0%81"><span class="toc-number">2.14.</span> <span class="toc-text">3.5 安装微码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-6-%E5%88%9B%E5%BB%BA%E6%96%B0%E7%94%A8%E6%88%B7"><span class="toc-number">2.15.</span> <span class="toc-text">3.6 创建新用户</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-7-NetworkManager"><span class="toc-number">2.16.</span> <span class="toc-text">3.7 NetworkManager</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-8-%E9%85%8D%E7%BD%AEKeyfile"><span class="toc-number">2.17.</span> <span class="toc-text">3.8 配置Keyfile</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-9-Mkinitpio"><span class="toc-number">2.18.</span> <span class="toc-text">3.9 Mkinitpio</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-10-%E5%AE%89%E8%A3%85%E5%BC%95%E5%AF%BC%E7%A8%8B%E5%BA%8F"><span class="toc-number">2.19.</span> <span class="toc-text">3.10 安装引导程序</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-%E5%AE%8C%E6%88%90%E5%AE%89%E8%A3%85"><span class="toc-number">2.20.</span> <span class="toc-text">4 完成安装</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-%E5%85%B6%E4%BB%96%E8%AE%BE%E7%BD%AE"><span class="toc-number">2.21.</span> <span class="toc-text">5 其他设置</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#5-1-%E5%AD%97%E4%BD%93"><span class="toc-number">2.21.1.</span> <span class="toc-text">5.1 字体</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#5-2-snapshots-%E5%92%8C-system-rollbacks"><span class="toc-number">2.21.2.</span> <span class="toc-text">5.2 snapshots 和 system rollbacks</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E5%8F%82%E8%80%83%EF%BC%9A"><span class="toc-number">2.21.3.</span> <span class="toc-text">参考：</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        记录一下使用btrfs安装ArchLinux的过程
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">DJHLB</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-05-25T11:26:54.000Z" class="dt-published" itemprop="datePublished">2024-05-25</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="1-事前准备"><a href="#1-事前准备" class="headerlink" title="1. 事前准备"></a>1. 事前准备</h4><p>下载并验证安装文件：<a target="_blank" rel="noopener" href="https://archlinux.org/download/">archlinux-RELEASE_VERSION-x86_64.iso</a></p>
+<p>插上合适的安装介质(U盘等)，使用dd命令来制作：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo <span class="built_in">dd</span> <span class="keyword">if</span>=archlinux-RELEASE_VERSION-x86_64.iso of=/dev/sdx bs=4M status=progress oflag=<span class="built_in">sync</span></span><br></pre></td></tr></table></figure>
+
+<p>完成之后，就可以从安装介质启动了</p>
+<h4 id="2-开始安装"><a href="#2-开始安装" class="headerlink" title="2. 开始安装"></a>2. 开始安装</h4><h5 id="2-1-reflector"><a href="#2-1-reflector" class="headerlink" title="2.1 reflector"></a>2.1 reflector</h5><p>首先禁用reflector：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ systemctl stop reflector.service</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-2-键盘布局和字体"><a href="#2-2-键盘布局和字体" class="headerlink" title="2.2 键盘布局和字体"></a>2.2 键盘布局和字体</h5><p>列出可用的键盘布局：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ localectl list-keymaps</span><br></pre></td></tr></table></figure>
+
+<p>使用你想要的键盘布局：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ loadkeys your-keymap</span><br></pre></td></tr></table></figure>
+
+<p>默认键盘布局是<code>us</code> ，我们使用默认即可</p>
+<p>切换终端字体，例如 <em>terminus</em><code>ter-v24n</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ setfont ter-v24n</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-3-连接网络"><a href="#2-3-连接网络" class="headerlink" title="2.3 连接网络"></a>2.3 连接网络</h5><p>有线一般无需操作；无线的话，使用iwctl命令进行连接：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ iwctl                           <span class="comment">#执行iwctl命令，进入交互式命令行</span></span><br><span class="line">$ device list                     <span class="comment">#列出设备名，比如无线网卡看到叫 wlan0</span></span><br><span class="line">$ station wlan0 scan              <span class="comment">#扫描网络</span></span><br><span class="line">$ station wlan0 get-networks      <span class="comment">#列出网络 比如想连接YOUR-WIRELESS-NAME这个无线</span></span><br><span class="line">$ station wlan0 connect YOUR-WIRELESS-NAME <span class="comment">#进行连接 输入密码即可</span></span><br><span class="line">$ <span class="built_in">exit</span>                            <span class="comment">#成功后exit退出</span></span><br></pre></td></tr></table></figure>
+
+<p>测试一下有没有网络：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ping www.gnu.org</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-4-更新系统时钟"><a href="#2-4-更新系统时钟" class="headerlink" title="2.4 更新系统时钟"></a>2.4 更新系统时钟</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ timedatectl set-ntp <span class="literal">true</span>    <span class="comment">#将系统时间与网络时间进行同步</span></span><br><span class="line">$ timedatectl status          <span class="comment">#检查服务状态</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="2-5-磁盘分区"><a href="#2-5-磁盘分区" class="headerlink" title="2.5 磁盘分区"></a>2.5 磁盘分区</h5><p>列出设备上的存储设备：<code>lsblk -f</code>，然后设置一个变量来标记要安装在的硬盘（我的是nvme0n1）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> disk=<span class="string">&quot;/dev/nvme0n1&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>删除旧的分区：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ wipefs -af <span class="variable">$disk</span></span><br><span class="line">$ sgdisk --zap-all --clear <span class="variable">$disk</span></span><br><span class="line">$ partprobe <span class="variable">$disk</span></span><br></pre></td></tr></table></figure>
+
+<p>可选：用随机数据填充硬盘</p>
+<p>临时加密：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cryptsetup open --<span class="built_in">type</span> plain -d /dev/urandom <span class="variable">$disk</span> target</span><br></pre></td></tr></table></figure>
+
+<p>填充：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">dd</span> <span class="keyword">if</span>=/dev/zero of=dev/mapper/target bs=1M status=progress oflag=direct</span><br></pre></td></tr></table></figure>
+
+<p>移除：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cryptsetup close target</span><br></pre></td></tr></table></figure>
+
+<p>现在来开始分区，这里我使用的是<code>sgdisk</code> 命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sgdisk --lsit-types		<span class="comment">#列出相关系统文件类型的代码</span></span><br><span class="line">$ sgdisk -n 0:0:+800MiB -t 0:ef00 -c 0:esp <span class="variable">$disk</span>		<span class="comment">#创建EFI分区</span></span><br><span class="line">$ sgdisk -n 0:0:0 -t 0:8309 -c 0:luks <span class="variable">$disk</span>		<span class="comment">#创建根目录</span></span><br><span class="line">$ partprobe <span class="variable">$disk</span></span><br></pre></td></tr></table></figure>
+
+<p>打印新的分区表：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sgdisk -p <span class="variable">$disk</span></span><br></pre></td></tr></table></figure>
+
+<h6 id="2-5-1-磁盘加密"><a href="#2-5-1-磁盘加密" class="headerlink" title="2.5.1 磁盘加密"></a>2.5.1 磁盘加密</h6><p>我这里使用LUKS1</p>
+<h6 id="2-5-2-初始化加密分区："><a href="#2-5-2-初始化加密分区：" class="headerlink" title="2.5.2 初始化加密分区："></a>2.5.2 初始化加密分区：</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cryptsetup --<span class="built_in">type</span> luks1 -v -y luksFormat <span class="variable">$&#123;disk&#125;</span>p2		<span class="comment">#这里p2是根目录</span></span><br></pre></td></tr></table></figure>
+
+<h6 id="2-5-3-格式化分区"><a href="#2-5-3-格式化分区" class="headerlink" title="2.5.3 格式化分区"></a>2.5.3 格式化分区</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ cryptsetup open <span class="variable">$&#123;disk&#125;</span>p2 cryptdev</span><br><span class="line">$ mkfs.vfat -F32 -n ESP <span class="variable">$&#123;disk&#125;</span>p1</span><br><span class="line">$ mkfs.btrfs -L archlinux /dev/mapper/cryptdev</span><br></pre></td></tr></table></figure>
+
+<h6 id="2-5-4-挂载根目录并创建btrfs子卷"><a href="#2-5-4-挂载根目录并创建btrfs子卷" class="headerlink" title="2.5.4 挂载根目录并创建btrfs子卷"></a>2.5.4 挂载根目录并创建btrfs子卷</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mount /dev/mapper/cryptdev /mnt</span><br></pre></td></tr></table></figure>
+
+<p>创建子卷：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ btrfs subvolume create /mnt/@home</span><br><span class="line">$ btrfs subvolume create /mnt/@snapshots</span><br><span class="line">$ btrfs subvolume create /mnt/@cache</span><br><span class="line">$ btrfs subvolume create /mnt/@root</span><br><span class="line">$ btrfs subvolume create /mnt/@srv</span><br><span class="line">$ btrfs subvolume create /mnt/@<span class="built_in">log</span></span><br><span class="line">$ btrfs subvolume create /mnt/@tmp</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-6-挂载分区"><a href="#2-6-挂载分区" class="headerlink" title="2.6 挂载分区"></a>2.6 挂载分区</h5><p>首先先卸载根目录分区：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ umount /mnt</span><br></pre></td></tr></table></figure>
+
+<p>设置一下子卷挂载参数选项，方便后续操作：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> sv_opts=<span class="string">&quot;rw,noatime,compress-force=zstd:1,space_cache=v2&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后先挂载btrfs根子卷：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mount -o <span class="variable">$&#123;sv_opts&#125;</span>,subvol=@ /dev/mapper/cryptdev /mnt</span><br></pre></td></tr></table></figure>
+
+<p>为其他子卷创建挂载点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> -p /mnt/&#123;home,root,.snapshots,srv,var/cache,var/log,var/tmp&#125;</span><br></pre></td></tr></table></figure>
+
+<p>挂载其他子卷：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ mount -o <span class="variable">$&#123;sv_opts&#125;</span>,subvol=@home /dev/mapper/cryptdev /mnt/home</span><br><span class="line">$ mount -o <span class="variable">$&#123;sv_opts&#125;</span>,subvol=@root /dev/mapper/cryptdev /mnt/root</span><br><span class="line">$ mount -o <span class="variable">$&#123;sv_opts&#125;</span>,subvol=@snapshots /dev/mapper/cryptdev /mnt/.snapshots</span><br><span class="line">$ mount -o <span class="variable">$&#123;sv_opts&#125;</span>,subvol=@cache /dev/mapper/cryptdev /mnt/var/cache</span><br><span class="line">$ mount -o <span class="variable">$&#123;sv_opts&#125;</span>,subvol=@srv /dev/mapper/cryptdev /mnt/srv</span><br><span class="line">$ mount -o <span class="variable">$&#123;sv_opts&#125;</span>,subvol=@<span class="built_in">log</span> /dev/mapper/cryptdev /mnt/var/log</span><br><span class="line">$ mount -o <span class="variable">$&#123;sv_opts&#125;</span>,subvol=@tmp /dev/mapper/cryptdev /mnt/var/tmp</span><br></pre></td></tr></table></figure>
+
+<p>最后别忘了挂载ESP分区：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> /mnt/efi</span><br><span class="line">$ mount <span class="variable">$&#123;disk&#125;</span>p1 /mnt/efi</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-7-安装系统"><a href="#2-7-安装系统" class="headerlink" title="2.7 安装系统"></a>2.7 安装系统</h5><p>一些必要的包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ pacstrap /mnt base base-devel linux linux-headers linux-firmware</span><br></pre></td></tr></table></figure>
+
+<p>其他功能性包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ pacstrap /mnt bash-completion cryptsetup man-db vim wget curl git networkmanager pacman-contrib pkgfile sudo</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-8-Fstab"><a href="#2-8-Fstab" class="headerlink" title="2.8 Fstab"></a>2.8 Fstab</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ genfstab -U -p /mnt &gt;&gt; /mnt/etc/fstab</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-基础配置"><a href="#3-基础配置" class="headerlink" title="3 基础配置"></a>3 基础配置</h5><p>首先进入系统：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ arch-chroot /mnt /bin/bash</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-1-时区"><a href="#3-1-时区" class="headerlink" title="3.1 时区"></a>3.1 时区</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</span><br><span class="line">$ hwclock --systohc</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-2-主机名"><a href="#3-2-主机名" class="headerlink" title="3.2 主机名"></a>3.2 主机名</h5><p>编辑<code>/etc/hostname</code>设置主机名</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ vim /etc/hostname</span><br></pre></td></tr></table></figure>
+
+<p>编辑<code>/etc/hosts</code>并加入以下内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1   localhost</span><br><span class="line">::1         localhost</span><br><span class="line">127.0.1.1   your_hostname</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-3-设置Locale"><a href="#3-3-设置Locale" class="headerlink" title="3.3 设置Locale"></a>3.3 设置Locale</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> locale=<span class="string">&quot;en_US.UTF-8&quot;</span></span><br><span class="line">$ <span class="built_in">export</span> localezh=<span class="string">&quot;zh_CN.UTF-8&quot;</span></span><br><span class="line">$ sed -i <span class="string">&quot;s/^#\(<span class="variable">$&#123;locale&#125;</span>\)/\1/&quot;</span> /etc/lcoale.gen</span><br><span class="line">$ sed -i <span class="string">&quot;s/^#\(<span class="variable">$&#123;localezh&#125;</span>\)/\1/&quot;</span> /etc/locale.gen</span><br><span class="line">$ <span class="built_in">echo</span> <span class="string">&quot;LANG=<span class="variable">$&#123;locale&#125;</span>&quot;</span> &gt; /etc/local.conf</span><br><span class="line">$ locale-gen</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-4-为root用户设置密码"><a href="#3-4-为root用户设置密码" class="headerlink" title="3.4 为root用户设置密码"></a>3.4 为root用户设置密码</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ passwd root</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-5-安装微码"><a href="#3-5-安装微码" class="headerlink" title="3.5 安装微码"></a>3.5 安装微码</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ pacman -S intel-ucode   <span class="comment">#Intel</span></span><br><span class="line">$ pacman -S amd-ucode     <span class="comment">#AMD</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3-6-创建新用户"><a href="#3-6-创建新用户" class="headerlink" title="3.6 创建新用户"></a>3.6 创建新用户</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ useradd -m -G wheel -s /bin/bash foo</span><br><span class="line">$ passwd foo</span><br></pre></td></tr></table></figure>
+
+<p>为用户foo设置root权限：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sed -i <span class="string">&quot;s/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/&quot;</span> /etc/sudoers</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-7-NetworkManager"><a href="#3-7-NetworkManager" class="headerlink" title="3.7 NetworkManager"></a>3.7 NetworkManager</h5><p>设置<code>NetworkManager</code>开机启动：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ systemctl <span class="built_in">enable</span> NetworkManager</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-8-配置Keyfile"><a href="#3-8-配置Keyfile" class="headerlink" title="3.8 配置Keyfile"></a>3.8 配置Keyfile</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">dd</span> bs=512 count=4 iflag=fullblock <span class="keyword">if</span>=/dev/random of=/crypto_keyfile.bin</span><br><span class="line">$ <span class="built_in">chmod</span> 600 /crypto_keyfile.bin</span><br></pre></td></tr></table></figure>
+
+<p>将keyfile添加至LUKS：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ cryptsetup luksAddKey <span class="variable">$&#123;disk&#125;</span>p2 /crypto_keyfile.bin</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-9-Mkinitpio"><a href="#3-9-Mkinitpio" class="headerlink" title="3.9 Mkinitpio"></a>3.9 Mkinitpio</h5><p>编辑<code>/etc/mkinitcpio.conf</code>文件：</p>
+<ol>
+<li><p>添加keyfile：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FILES=(/crypt_keyfile.bin)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加<code>btrfs</code>支持：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MODULES=(btrfs)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置hooks：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HOOKS=(base udev keyboard autodetect keymap consolefont modconf block encrypt filesystems fsck)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>最后需要<code>mkinitcpio -P</code>一下</p>
+<h5 id="3-10-安装引导程序"><a href="#3-10-安装引导程序" class="headerlink" title="3.10 安装引导程序"></a>3.10 安装引导程序</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ pacman -S grub efibootmgr</span><br></pre></td></tr></table></figure>
+
+<p>因为使用了luks加密，这里需要配置一下grub</p>
+<p>首先找到加密硬盘的UUID：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ blkid -s UUID -o value <span class="variable">$&#123;disk&#125;</span>p2</span><br></pre></td></tr></table></figure>
+
+<p>然后编辑<code>/etc/default/grub</code>，定位到<code>GRUB_CMDLINE_LINUX_DEFAULT</code>这一行并填写：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GRUB_CMDLINE_LINUX_DEFAULT=<span class="string">&quot;loglevel=3 quiet cryptdevice=UUID=UUID_OF_ENCRYPTED_PARTITION:cryptdev&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里将<code>UUID=UUID_OF_ENCRYPTED_PARTITION</code>替换为你加密硬盘的UUID</p>
+<p>添加<code>luks</code>模块：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GRUB_PRELOAD_MODULES=<span class="string">&quot;part_gpt part_msdos luks&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>为grub启用<code>GRUB_ENABLE_CRYPTODISK</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GRUB_ENABLE_CRYPTODISK=y</span><br></pre></td></tr></table></figure>
+
+<p>安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ grub-install --target=x86_64-efi --efi-directory=/efi --boot-directory=/efi --bootloader-id=GRUB</span><br></pre></td></tr></table></figure>
+
+<p>最后生成 GRUB 所需的配置文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ grub-mkconfig -o /efi/grub/grub.cfg</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-完成安装"><a href="#4-完成安装" class="headerlink" title="4 完成安装"></a>4 完成安装</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">exit</span></span><br><span class="line">$ umount -R /mnt</span><br><span class="line">$ reboot</span><br></pre></td></tr></table></figure>
+
+<h5 id="5-其他设置"><a href="#5-其他设置" class="headerlink" title="5 其他设置"></a>5 其他设置</h5><h6 id="5-1-字体"><a href="#5-1-字体" class="headerlink" title="5.1 字体"></a>5.1 字体</h6><p>fonts.conf:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line">  &lt;!-- Default font for the zh_CN locale (no fc-match pattern) --&gt;</span><br><span class="line">  &lt;match&gt;</span><br><span class="line">    &lt;test compare=&quot;contains&quot; name=&quot;lang&quot;&gt;</span><br><span class="line">      &lt;string&gt;zh_CN&lt;/string&gt;</span><br><span class="line">    &lt;/test&gt;</span><br><span class="line">    &lt;edit mode=&quot;prepend&quot; name=&quot;family&quot;&gt;</span><br><span class="line">      &lt;!-- 更改下一行即可, 以下同理 --&gt;</span><br><span class="line">      &lt;string&gt;PingFang SC&lt;/string&gt;</span><br><span class="line">    &lt;/edit&gt;</span><br><span class="line">  &lt;/match&gt;</span><br><span class="line"></span><br><span class="line">  &lt;!-- 默认无衬线字体 --&gt;</span><br><span class="line">  &lt;!-- Default sans-serif font --&gt;</span><br><span class="line">  &lt;match target=&quot;pattern&quot;&gt;</span><br><span class="line">    &lt;test qual=&quot;any&quot; name=&quot;family&quot;&gt;</span><br><span class="line">      &lt;string&gt;sans-serif&lt;/string&gt;&lt;/test&gt;</span><br><span class="line">    &lt;edit name=&quot;family&quot; mode=&quot;prepend&quot; binding=&quot;same&quot;&gt;</span><br><span class="line">      &lt;string&gt;Inter&lt;/string&gt;</span><br><span class="line">    &lt;/edit&gt;</span><br><span class="line">  &lt;/match&gt;</span><br><span class="line"></span><br><span class="line">  &lt;!-- 默认衬线字体 --&gt;</span><br><span class="line">  &lt;!-- Default serif fonts --&gt;</span><br><span class="line">  &lt;match target=&quot;pattern&quot;&gt;</span><br><span class="line">    &lt;test qual=&quot;any&quot; name=&quot;family&quot;&gt;</span><br><span class="line">      &lt;string&gt;serif&lt;/string&gt;</span><br><span class="line">    &lt;/test&gt;</span><br><span class="line">    &lt;edit name=&quot;family&quot; mode=&quot;prepend&quot; binding=&quot;same&quot;&gt;</span><br><span class="line">      &lt;string&gt;STSong&lt;/string&gt;</span><br><span class="line">    &lt;/edit&gt;</span><br><span class="line">  &lt;/match&gt;</span><br><span class="line"></span><br><span class="line">  &lt;!-- 默认等宽字体 --&gt;</span><br><span class="line">  &lt;!-- Default monospace fonts --&gt;</span><br><span class="line">  &lt;match target=&quot;pattern&quot;&gt;</span><br><span class="line">    &lt;test qual=&quot;any&quot; name=&quot;family&quot;&gt;</span><br><span class="line">      &lt;string&gt;monospace&lt;/string&gt;</span><br><span class="line">    &lt;/test&gt;</span><br><span class="line">    &lt;edit name=&quot;family&quot; mode=&quot;prepend&quot; binding=&quot;same&quot;&gt;</span><br><span class="line">      &lt;string&gt;MesloLGS Nerd Font Mono&lt;/string&gt;</span><br><span class="line">    &lt;/edit&gt;</span><br><span class="line">  &lt;/match&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- Fallback fonts preference order --&gt;</span><br><span class="line">  &lt;alias&gt;</span><br><span class="line">    &lt;family&gt;sans-serif&lt;/family&gt;</span><br><span class="line">    &lt;prefer&gt;</span><br><span class="line">      &lt;family&gt;Inter&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;PingFang SC&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;PingFang TC&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Microsoft YaHei UI&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Microsoft YaHei&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Sans CJK SC&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Sans CJK TC&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Sans CJK JP&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Sans CJK KR&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Color Emoji&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Emoji&lt;/family&gt;</span><br><span class="line">    &lt;/prefer&gt;</span><br><span class="line">  &lt;/alias&gt;</span><br><span class="line">  &lt;alias&gt;</span><br><span class="line">    &lt;family&gt;serif&lt;/family&gt;</span><br><span class="line">    &lt;prefer&gt;</span><br><span class="line">      &lt;family&gt;STSong&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;SimSun&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Serif&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Serif CJK SC&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Serif CJK TC&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Serif CJK JP&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Serif CJK KR&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Color Emoji&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Emoji&lt;/family&gt;</span><br><span class="line">    &lt;/prefer&gt;</span><br><span class="line">  &lt;/alias&gt;</span><br><span class="line">  &lt;alias&gt;</span><br><span class="line">    &lt;family&gt;monospace&lt;/family&gt;</span><br><span class="line">    &lt;prefer&gt;</span><br><span class="line">      &lt;family&gt;MesloLGS Nerd Font Mono&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Microsoft YaHei UI&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Microsoft YaHei&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Color Emoji&lt;/family&gt;</span><br><span class="line">      &lt;family&gt;Noto Emoji&lt;/family&gt;</span><br><span class="line">    &lt;/prefer&gt;</span><br><span class="line">  &lt;/alias&gt;</span><br></pre></td></tr></table></figure>
+
+<h6 id="5-2-snapshots-和-system-rollbacks"><a href="#5-2-snapshots-和-system-rollbacks" class="headerlink" title="5.2 snapshots 和 system rollbacks"></a>5.2 snapshots 和 system rollbacks</h6><p>首先安装snapper:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo pacman -S snapper snap-pac</span><br></pre></td></tr></table></figure>
+
+<p>在前面安装时已经创建了<code>@snapshots</code>子卷，先卸载并删除其挂载点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo umount /.snapshots</span><br><span class="line">$ sudo <span class="built_in">rm</span> -rf /.snapshots</span><br></pre></td></tr></table></figure>
+
+<p>然后让snapper生成默认的配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo snapper -c root create-config /</span><br></pre></td></tr></table></figure>
+
+<p>删除由snapper创建的挂载点，自己重新创建一个并挂载它：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo btrfs subvolume delete .snapshots</span><br><span class="line">$ sudo <span class="built_in">mkdir</span> /.snapshots</span><br><span class="line">$ sudo mount -a</span><br></pre></td></tr></table></figure>
+
+<p>这样设置就把 Snapper 创建的所有快照存储在 @ 子卷之外了。然后可以替换 @ 而不会丢失快照。</p>
+<p>设置一下权限（注意用户须有root权限来使用快照）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo <span class="built_in">chmod</span> 750 /.snapshots</span><br><span class="line">$ sudo <span class="built_in">chown</span> :wheel /.snapshots</span><br></pre></td></tr></table></figure>
+
+<p>接下来设置定时快照，编辑snapper配置文件<code>/etc/snapper/configs/root</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[......]</span><br><span class="line">ALLOW_USERS=<span class="string">&quot;foo&quot;</span>	<span class="comment">#允许用户foo管理快照</span></span><br><span class="line">[......]</span><br><span class="line">TIMELINE_MIN_AGE=<span class="string">&quot;1800&quot;</span></span><br><span class="line">TIMELINE_LIMIT_HOURLY=<span class="string">&quot;5&quot;</span></span><br><span class="line">TIMELINE_LIMIT_DAILY=<span class="string">&quot;7&quot;</span></span><br><span class="line">TIMELINE_LIMIT_WEEKLY=<span class="string">&quot;0&quot;</span></span><br><span class="line">TIMELINE_LIMIT_MONTHLY=<span class="string">&quot;0&quot;</span></span><br><span class="line">TIMELINE_LIMIT_YEARLY=<span class="string">&quot;0&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>设置snapper自启动：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo systemctl <span class="built_in">enable</span> --now snapper-timeline.timer</span><br><span class="line">$ sudo systemctl <span class="built_in">enable</span> --now snapper-cleanup.timer</span><br></pre></td></tr></table></figure>
+
+<p>配置Updatedb（系统有locate命令），编辑<code>/etc/updatedb.conf</code>添加一行：<code>PRUNENAMES = &quot;.snapshots&quot;</code></p>
+<p>为Grub添加快照选项，首先安装<code>grub-btrfs</code>包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo pacman -S grub-btrfs</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>/etc/default/grub-btrfs/config</code> 中设置包含 <code>grub.cfg</code> 文件的目录位置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GRUB_BTRFS_GRUB_DIRNAME=<span class="string">&quot;/efi/grub&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>再设置一下Grub自动更新：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo systemctl <span class="built_in">enable</span> --now grub-btrfs.path</span><br></pre></td></tr></table></figure>
+
+<p>接下来设置只读快照，从快照启动系统时将是只读模式。在 <code>/etc/mkinitcpio.conf</code> 中 HOOKS 末尾添加 <code>grub-btrfs-overlayfs</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HOOKS=(base ... fsck grub-btrfs-overlayfs)</span><br></pre></td></tr></table></figure>
+
+<p>重新生成initramfs：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mkinitcpio -P</span><br></pre></td></tr></table></figure>
+
+<p>手动回滚：  启动到由overlayfs 提供的快照挂载读写后，挂载顶级子卷(subvolid&#x3D;5)。  也就是说，省略任何 subvolid 或 subvol 安装标志（例如：标记为 cryptdev 的加密设备映射）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo mount /dev/mapper/cryptdev /mnt</span><br></pre></td></tr></table></figure>
+
+<p>移动并标记损坏的@子卷：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo <span class="built_in">mv</span> /mnt/@ /mnt/@.broken</span><br></pre></td></tr></table></figure>
+
+<p>或者干脆删除@子卷：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo btrfs  /mnt/@</span><br></pre></td></tr></table></figure>
+
+<p>找到要恢复的快照的编号：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sudo grep -r <span class="string">&#x27;&lt;date&gt;&#x27;</span> /mnt/@snapshots/*/info.xml</span><br><span class="line">[...]</span><br><span class="line">/.snapshots/8/info.xml:  &lt;<span class="built_in">date</span>&gt;2022-08-20 15:21:53&lt;/date&gt;</span><br><span class="line">/.snapshots/9/info.xml:  &lt;<span class="built_in">date</span>&gt;2022-08-20 15:22:39&lt;/date&gt; </span><br></pre></td></tr></table></figure>
+
+<p>创建只读快照：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo btrfs subvolume snapshot /mnt/@snapshots/number/snapshot /mnt/@	<span class="comment">#number为要恢复的快照的编号</span></span><br></pre></td></tr></table></figure>
+
+<p>卸载&#x2F;mnt。  </p>
+<p>重启并回滚！</p>
+<h6 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h6><p><a target="_blank" rel="noopener" href="https://www.dwarmstrong.org/archlinux-install/">A(rch) to Z(ram): Install Arch Linux with (almost) full disk encryption and BTRFS</a></p>
+<p><a target="_blank" rel="noopener" href="https://archlinuxstudio.github.io/ArchLinuxTutorial/#/"><a target="_blank" rel="noopener" href="https://archlinuxstudio.github.io/ArchLinuxTutorial/#/?id=arch-linux-%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B-archtutorial-arch-linux-studio">Arch Linux 安装使用教程 - ArchTutorial - Arch Linux Studio</a></a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/djhlb">项目</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%BA%8B%E5%89%8D%E5%87%86%E5%A4%87"><span class="toc-number">1.</span> <span class="toc-text">1. 事前准备</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%BC%80%E5%A7%8B%E5%AE%89%E8%A3%85"><span class="toc-number">2.</span> <span class="toc-text">2. 开始安装</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#2-1-reflector"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 reflector</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-2-%E9%94%AE%E7%9B%98%E5%B8%83%E5%B1%80%E5%92%8C%E5%AD%97%E4%BD%93"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 键盘布局和字体</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-3-%E8%BF%9E%E6%8E%A5%E7%BD%91%E7%BB%9C"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 连接网络</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-4-%E6%9B%B4%E6%96%B0%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 更新系统时钟</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-5-%E7%A3%81%E7%9B%98%E5%88%86%E5%8C%BA"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 磁盘分区</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#2-5-1-%E7%A3%81%E7%9B%98%E5%8A%A0%E5%AF%86"><span class="toc-number">2.5.1.</span> <span class="toc-text">2.5.1 磁盘加密</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-5-2-%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8A%A0%E5%AF%86%E5%88%86%E5%8C%BA%EF%BC%9A"><span class="toc-number">2.5.2.</span> <span class="toc-text">2.5.2 初始化加密分区：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-5-3-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%88%86%E5%8C%BA"><span class="toc-number">2.5.3.</span> <span class="toc-text">2.5.3 格式化分区</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-5-4-%E6%8C%82%E8%BD%BD%E6%A0%B9%E7%9B%AE%E5%BD%95%E5%B9%B6%E5%88%9B%E5%BB%BAbtrfs%E5%AD%90%E5%8D%B7"><span class="toc-number">2.5.4.</span> <span class="toc-text">2.5.4 挂载根目录并创建btrfs子卷</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-6-%E6%8C%82%E8%BD%BD%E5%88%86%E5%8C%BA"><span class="toc-number">2.6.</span> <span class="toc-text">2.6 挂载分区</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-7-%E5%AE%89%E8%A3%85%E7%B3%BB%E7%BB%9F"><span class="toc-number">2.7.</span> <span class="toc-text">2.7 安装系统</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-8-Fstab"><span class="toc-number">2.8.</span> <span class="toc-text">2.8 Fstab</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-%E5%9F%BA%E7%A1%80%E9%85%8D%E7%BD%AE"><span class="toc-number">2.9.</span> <span class="toc-text">3 基础配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-1-%E6%97%B6%E5%8C%BA"><span class="toc-number">2.10.</span> <span class="toc-text">3.1 时区</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-2-%E4%B8%BB%E6%9C%BA%E5%90%8D"><span class="toc-number">2.11.</span> <span class="toc-text">3.2 主机名</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-3-%E8%AE%BE%E7%BD%AELocale"><span class="toc-number">2.12.</span> <span class="toc-text">3.3 设置Locale</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-4-%E4%B8%BAroot%E7%94%A8%E6%88%B7%E8%AE%BE%E7%BD%AE%E5%AF%86%E7%A0%81"><span class="toc-number">2.13.</span> <span class="toc-text">3.4 为root用户设置密码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-5-%E5%AE%89%E8%A3%85%E5%BE%AE%E7%A0%81"><span class="toc-number">2.14.</span> <span class="toc-text">3.5 安装微码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-6-%E5%88%9B%E5%BB%BA%E6%96%B0%E7%94%A8%E6%88%B7"><span class="toc-number">2.15.</span> <span class="toc-text">3.6 创建新用户</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-7-NetworkManager"><span class="toc-number">2.16.</span> <span class="toc-text">3.7 NetworkManager</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-8-%E9%85%8D%E7%BD%AEKeyfile"><span class="toc-number">2.17.</span> <span class="toc-text">3.8 配置Keyfile</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-9-Mkinitpio"><span class="toc-number">2.18.</span> <span class="toc-text">3.9 Mkinitpio</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-10-%E5%AE%89%E8%A3%85%E5%BC%95%E5%AF%BC%E7%A8%8B%E5%BA%8F"><span class="toc-number">2.19.</span> <span class="toc-text">3.10 安装引导程序</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-%E5%AE%8C%E6%88%90%E5%AE%89%E8%A3%85"><span class="toc-number">2.20.</span> <span class="toc-text">4 完成安装</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#5-%E5%85%B6%E4%BB%96%E8%AE%BE%E7%BD%AE"><span class="toc-number">2.21.</span> <span class="toc-text">5 其他设置</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#5-1-%E5%AD%97%E4%BD%93"><span class="toc-number">2.21.1.</span> <span class="toc-text">5.1 字体</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#5-2-snapshots-%E5%92%8C-system-rollbacks"><span class="toc-number">2.21.2.</span> <span class="toc-text">5.2 snapshots 和 system rollbacks</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E5%8F%82%E8%80%83%EF%BC%9A"><span class="toc-number">2.21.3.</span> <span class="toc-text">参考：</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&text=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&title=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&is_video=false&description=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=记录一下使用btrfs安装ArchLinux的过程&body=Check out this article: https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&title=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&title=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&title=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&title=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&name=记录一下使用btrfs安装ArchLinux的过程&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://djhl.github.io/2024/05/25/%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E4%BD%BF%E7%94%A8btrfs%E5%AE%89%E8%A3%85ArchLinux%E7%9A%84%E8%BF%87%E7%A8%8B/&t=记录一下使用btrfs安装ArchLinux的过程"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    DJHLB
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/djhlb">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
