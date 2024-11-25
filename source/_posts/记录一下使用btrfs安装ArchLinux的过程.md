@@ -193,8 +193,8 @@ $ mkdir -p /mnt/{home,root,.snapshots,srv,var/cache,var/log,var/tmp}
 $ mount -o ${sv_opts},subvol=@home /dev/mapper/cryptdev /mnt/home
 $ mount -o ${sv_opts},subvol=@root /dev/mapper/cryptdev /mnt/root
 $ mount -o ${sv_opts},subvol=@snapshots /dev/mapper/cryptdev /mnt/.snapshots
-$ mount -o ${sv_opts},subvol=@cache /dev/mapper/cryptdev /mnt/var/cache
 $ mount -o ${sv_opts},subvol=@srv /dev/mapper/cryptdev /mnt/srv
+$ mount -o ${sv_opts},subvol=@cache /dev/mapper/cryptdev /mnt/var/cache
 $ mount -o ${sv_opts},subvol=@log /dev/mapper/cryptdev /mnt/var/log
 $ mount -o ${sv_opts},subvol=@tmp /dev/mapper/cryptdev /mnt/var/tmp
 ```
